@@ -301,7 +301,7 @@
             padding: 10px 5px;
             margin: 0;
         }
-
+        
         td:first-child,
         th:first-child input {
             padding-left: 10px;
@@ -358,8 +358,8 @@
         }
 
         .meta-value-input {
-            width: 130px;
-            text-align: right;
+            width: 130px; 
+            text-align: right; 
             padding-right: 0 !important;
         }
 
@@ -439,7 +439,6 @@
         }
 
         @media print {
-
             .no-print,
             .upload-label,
             .btn-add,
@@ -482,12 +481,11 @@
                 padding-left: 0;
                 padding-right: 0;
             }
-
-            .right-col,
-            .meta-data-container {
+            
+            .right-col, .meta-data-container {
                 align-items: flex-end !important;
             }
-
+            
             .doc-headline {
                 text-align: right !important;
             }
@@ -536,21 +534,20 @@
 
             <div class="right-col">
                 <input id="doc-title" class="doc-headline" value="INVOICE">
-
+                
                 <div class="meta-data-container">
                     <div class="meta-row">
-                        <input class="meta-label-input" value="#">
-                        <input id="invoice-no" class="meta-value-input" style="width: 100px; font-weight: 600;"
-                            value="001">
+                        <input class="meta-label-input" value="#"> 
+                        <input id="invoice-no" class="meta-value-input" style="width: 100px; font-weight: 600;" value="001">
                     </div>
-
+                    
                     <div class="meta-row">
-                        <input class="meta-label-input" value="Date:">
+                        <input class="meta-label-input" value="Date:"> 
                         <input id="invoice-date" class="meta-value-input" type="date" onchange="onInvoiceDateChange()">
                     </div>
 
                     <div class="meta-row" id="due-date-row">
-                        <input class="meta-label-input" value="Due:">
+                        <input class="meta-label-input" value="Due:"> 
                         <input id="due-date" class="meta-value-input" type="date" onchange="onDueDateChange()">
                     </div>
                 </div>
@@ -636,10 +633,10 @@
         // Store default values for Invoice
         const INVOICE_NOTE = "Thank you for working with us!\n\nSee our portfolio here: https://drive.google.com/file/d/1lEKxLxVvkSx-0qHPoAywdgeWoUJTVPhR/view?usp=drive_link\n\nAccount Details:\nRama Management\nA / c No: 610000000047914\nIFSC Code: SRCB0000035\nSaraswat Bank, FC Road";
         const INVOICE_TERMS = "Please pay within 15 days.";
-
+        
         // Store default values for Receipt
         const RECEIPT_NOTE = "Payment Received with thanks.";
-        const RECEIPT_TERMS = "";
+        const RECEIPT_TERMS = ""; 
 
         // --- INITIALIZATION ON LOAD ---
         window.addEventListener('DOMContentLoaded', (event) => {
@@ -694,16 +691,16 @@
                 const yyyy = newInvoiceDate.getFullYear();
                 const mm = String(newInvoiceDate.getMonth() + 1).padStart(2, '0');
                 const dd = String(newInvoiceDate.getDate()).padStart(2, '0');
-
+                
                 updateInvoiceNumber(`${yyyy}-${mm}-${dd}`);
             }
         }
 
         // Helper: Updates Invoice Number field based on date string (yyyy-mm-dd)
         function updateInvoiceNumber(dateString) {
-            const yyyy = dateString.split('-')[0];
-            const mm = dateString.split('-')[1];
-            const dd = dateString.split('-')[2];
+            const yyyy = dateString.split('-')[0]; 
+            const mm = dateString.split('-')[1];   
+            const dd = dateString.split('-')[2];   
             const yy = yyyy.slice(-2);
             document.getElementById('invoice-no').value = `${dd}${mm}${yy}`;
         }
@@ -737,11 +734,11 @@
         function setType(type, btn) {
             document.getElementById('doc-title').value = type;
             document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
+            if(btn) btn.classList.add('active');
 
             const dueDateRow = document.getElementById('due-date-row');
             const totalLabel = document.getElementById('amount-due-label');
-
+            
             const noteField = document.getElementById('default-note');
             const termsField = document.getElementById('terms-field');
 
@@ -756,7 +753,7 @@
                 noteField.value = INVOICE_NOTE;
                 termsField.value = INVOICE_TERMS;
             }
-
+            
             checkEmptyFields();
         }
 
