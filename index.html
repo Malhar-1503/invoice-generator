@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rama Management Invoice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2d3436;
+            --accent: #6c5ce7;
+            --text-gray: #636e72;
+            --border: #dfe6e9;
+            --danger: #ff7675;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f2f5;
+            padding: 50px 20px;
+            color: var(--primary);
+        }
+
+        .invoice-card {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .no-print-top {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .type-btn {
+            font-family: 'Montserrat', sans-serif;
+            padding: 10px 30px;
+            border: 1px solid var(--accent);
+            background: white;
+            color: var(--accent);
+            cursor: pointer;
+            border-radius: 50px;
+            margin: 0 5px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .type-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
+
+        .left-col {
+            width: 60%;
+            text-align: left;
+        }
+
+        .right-col {
+            width: 35%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .doc-headline {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0;
+            border: none;
+            text-align: right;
+            width: 100%;
+            outline: none;
+            background: transparent;
+            padding: 0;
+        }
+
+        .meta-data-container {
+            margin-top: 15px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .meta-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        /* --- FIXED DATE PICKER BEHAVIOR --- */
+        input[type="date"] {
+            position: relative;
+            text-align: right;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* --- LOGO STYLES --- */
+        .logo-container {
+            margin-top: 10px;
+            text-align: left;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        #logo-preview {
+            max-width: 300px;
+            max-height: 150px;
+            display: none;
+            margin-bottom: 10px;
+            object-fit: contain;
+        }
+
+        .remove-logo {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .upload-label {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #f1f2f6;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            color: var(--text-gray);
+        }
+
+        /* --- INPUT STYLING --- */
+        textarea,
+        input {
+            font-family: 'Montserrat', sans-serif;
+            border: 1px solid transparent;
+            width: 100%;
+            margin-bottom: 5px;
+            color: var(--primary);
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            transition: 0.2s;
+        }
+
+        textarea {
+            resize: none;
+            overflow-y: hidden;
+        }
+
+        textarea:hover,
+        input:hover {
+            background: #f9f9f9;
+            border-color: var(--border);
+        }
+
+        textarea:focus,
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+        }
+
+        .editable-label {
+            font-weight: 600;
+            color: var(--text-gray);
+            font-size: 11px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+            text-align: left;
+            padding: 5px 10px;
+            background: transparent;
+            border: 1px solid transparent;
+            width: 100%;
+            cursor: text;
+        }
+
+        .editable-label:hover {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .editable-label:focus {
+            color: var(--accent);
+            background: white;
+            border-color: var(--accent);
+        }
+
+        .sender-box {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .receiver-box {
+            margin-bottom: 0px;
+            text-align: left;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .input-row textarea {
+            min-height: 42px;
+            height: auto;
+            padding-top: 10px;
+        }
+
+        .name-field {
+            flex: 1;
+            font-weight: 700;
+        }
+
+        .addr-field {
+            flex: 1.5;
+        }
+
+        /* --- TABLE HEADERS AS INPUTS --- */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 5px;
+            margin: 10px 0 30px 0;
+            table-layout: fixed;
+        }
+
+        th {
+            text-align: left;
+            border-bottom: 2px solid var(--primary);
+            padding: 0;
+        }
+
+        th input {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+            background: transparent;
+            border: none;
+            padding: 15px 10px;
+            color: var(--primary);
+            margin: 0;
+            border-radius: 0;
+        }
+
+        th input:hover {
+            background: #f0f0f0;
+        }
+
+        td {
+            padding: 5px 15px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        td input {
+            padding: 10px 5px;
+            margin: 0;
+        }
+
+        td:first-child,
+        th:first-child input {
+            padding-left: 10px;
+        }
+
+        .particulars-textarea {
+            min-height: 40px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding-top: 12px;
+        }
+
+        .btn-add {
+            background: none;
+            border: 1px dashed var(--accent);
+            color: var(--accent);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Montserrat';
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .notes-section {
+            width: 55%;
+            font-size: 13px;
+        }
+
+        .field-group {
+            margin-bottom: 15px;
+            transition: opacity 0.3s;
+        }
+
+        .totals-section {
+            width: 40%;
+            text-align: right;
+        }
+
+        .meta-label-input {
+            width: auto !important;
+            padding: 0 5px 0 0 !important;
+            margin: 0 !important;
+            color: var(--text-gray);
+            font-size: 14px;
+            text-align: right;
+            border: none;
+            background: transparent;
+        }
+
+        .meta-value-input {
+            width: 130px;
+            text-align: right;
+            padding-right: 0 !important;
+        }
+
+        .grand-total-row {
+            margin-top: 20px;
+            padding-top: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+            border-top: 2px solid var(--border);
+        }
+
+        .toggle-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--accent);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(20px);
+        }
+
+        #tax-section-wrapper {
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.4s ease;
+            max-height: 150px;
+            opacity: 1;
+        }
+
+        #tax-section-wrapper.hidden {
+            max-height: 0;
+            opacity: 0;
+            margin: 0;
+        }
+
+        @media print {
+
+            .no-print,
+            .upload-label,
+            .btn-add,
+            .no-print-top,
+            .remove-logo {
+                display: none !important;
+            }
+
+            .field-group.print-hidden {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .invoice-card {
+                width: 100%;
+                height: auto;
+                padding: 0;
+                margin: 0;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .toggle-wrapper {
+                display: none;
+            }
+
+            ::placeholder {
+                color: transparent;
+            }
+
+            input,
+            textarea,
+            .editable-label {
+                border: none !important;
+                background: transparent !important;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .right-col,
+            .meta-data-container {
+                align-items: flex-end !important;
+            }
+
+            .doc-headline {
+                text-align: right !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="no-print-top">
+        <button class="type-btn active" onclick="setType('INVOICE', this)">INVOICE</button>
+        <button class="type-btn" onclick="setType('RECEIPT', this)">RECEIPT</button>
+    </div>
+
+    <div class="invoice-card">
+        <div class="header-top">
+            <div class="left-col">
+                <div class="logo-container" id="logo-wrap">
+                    <img id="logo-preview" src="#" alt="Logo Preview">
+                    <button class="remove-logo" id="remove-logo-btn" onclick="removeLogo()"
+                        title="Remove Logo">✕</button>
+                    <label for="logo-input" id="upload-label" class="upload-label no-print">+ Upload Logo</label>
+                    <input type="file" id="logo-input" hidden accept="image/*" onchange="previewLogo(this)">
+                </div>
+
+                <div class="sender-box">
+                    <input class="editable-label" value="Who is this from?">
+                    <div class="input-row">
+                        <textarea id="sender-name" class="name-field" rows="1" placeholder="Your Business Name"
+                            oninput="autoResize(this)"></textarea>
+                        <textarea class="addr-field" rows="1" placeholder="Address (City, Zip)"
+                            oninput="autoResize(this)"></textarea>
+                    </div>
+                </div>
+
+                <div class="receiver-box">
+                    <input class="editable-label" value="Bill To">
+                    <div class="input-row">
+                        <textarea id="client-name" class="name-field" rows="1" placeholder="Client Name"
+                            oninput="autoResize(this)"></textarea>
+                        <textarea class="addr-field" rows="1" placeholder="Client Address"
+                            oninput="autoResize(this)"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-col">
+                <input id="doc-title" class="doc-headline" value="INVOICE">
+
+                <div class="meta-data-container">
+                    <div class="meta-row">
+                        <input class="meta-label-input" value="#">
+                        <input id="invoice-no" class="meta-value-input" style="width: 100px; font-weight: 600;"
+                            value="001">
+                    </div>
+
+                    <div class="meta-row">
+                        <input class="meta-label-input" value="Date:">
+                        <input id="invoice-date" class="meta-value-input" type="date" onchange="onInvoiceDateChange()">
+                    </div>
+
+                    <div class="meta-row" id="due-date-row">
+                        <input class="meta-label-input" value="Due:">
+                        <input id="due-date" class="meta-value-input" type="date" onchange="onDueDateChange()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 45%;"><input value="Particulars"></th>
+                    <th style="width: 10%;"><input value="Qty"></th>
+                    <th style="width: 15%;"><input value="Rate"></th>
+                    <th style="width: 30%; text-align: right;"><input value="Amount" style="text-align: right;"></th>
+                </tr>
+            </thead>
+            <tbody id="items-body">
+                <tr>
+                    <td><textarea class="particulars-textarea" rows="1" placeholder="Service/Item Name"
+                            oninput="autoResize(this)"></textarea></td>
+                    <td><input type="number" class="qty" value="1" oninput="calculate()"></td>
+                    <td><input type="number" class="rate" value="0" oninput="calculate()"></td>
+                    <td style="text-align: right; font-weight: 600;" class="item-total">₹0.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button class="btn-add no-print" onclick="addRow()">+ Add Line Item</button>
+
+        <div class="footer">
+            <div class="notes-section">
+                <div class="field-group" id="notes-group">
+                    <input class="editable-label" value="Notes" style="font-size: 12px; margin-bottom:0;">
+                    <textarea id="default-note" rows="5" placeholder="Thank you for your business."
+                        oninput="checkEmptyFields()"></textarea>
+                </div>
+
+                <div class="field-group" id="terms-group">
+                    <input class="editable-label" value="Terms"
+                        style="font-size: 12px; margin-bottom:0; margin-top: 10px;">
+                    <textarea id="terms-field" rows="3" placeholder="Please pay within 15 days."
+                        oninput="checkEmptyFields()"></textarea>
+                </div>
+            </div>
+
+            <div class="totals-section">
+                <p style="color: var(--text-gray); font-size: 15px;">Subtotal: <span id="subtotal"
+                        style="color:var(--primary); font-weight:600;">₹0.00</span></p>
+
+                <div class="toggle-wrapper no-print">
+                    <span style="font-size: 12px; color: var(--text-gray);">Apply Tax</span>
+                    <label class="switch">
+                        <input type="checkbox" id="tax-toggle" onchange="toggleTax()" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div id="tax-section-wrapper">
+                    <p style="color: var(--text-gray); margin: 5px 0;">Tax Rate (%):
+                        <input type="number" id="tax" value="18"
+                            style="width: 60px; text-align: right; border: 1px solid #ddd; padding: 4px;"
+                            oninput="calculate()">
+                    </p>
+                    <p style="color: var(--text-gray); font-size: 14px; margin: 5px 0;">
+                        Tax Amount: <span id="tax-amount-display"
+                            style="color: var(--primary); font-weight: 600;">₹0.00</span>
+                    </p>
+                </div>
+
+                <div class="grand-total-row">
+                    <input id="amount-due-label" class="editable-label" value="Amount Due"
+                        style="text-align: right; margin-bottom: 5px; font-weight: 400;">
+                    <span id="grand-total">₹0.00</span>
+                </div>
+
+                <button class="no-print"
+                    style="margin-top: 30px; width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: 600; cursor: pointer;"
+                    onclick="validateAndPrint()">Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store default values for Invoice
+        const INVOICE_NOTE = "Thank you for working with us!\n\nSee our portfolio here: https://drive.google.com/file/d/1lEKxLxVvkSx-0qHPoAywdgeWoUJTVPhR/view?usp=drive_link\n\nAccount Details:\nRama Management\nA / c No: 610000000047914\nIFSC Code: SRCB0000035\nSaraswat Bank, FC Road";
+        const INVOICE_TERMS = "Please pay within 15 days.";
+
+        // Store default values for Receipt
+        const RECEIPT_NOTE = "Payment Received with thanks.";
+        const RECEIPT_TERMS = "";
+
+        // --- INITIALIZATION ON LOAD ---
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const today = new Date();
+
+            // 1. Set Invoice Date to Today
+            document.getElementById('invoice-date').valueAsDate = today;
+
+            // 2. Set logic for Invoice No and Due Date
+            onInvoiceDateChange();
+
+            // 3. Autofill Company Details
+            document.getElementById('sender-name').value = "Rama Management";
+            document.querySelector('.sender-box .addr-field').value = "Kothrud, Pune - 411038";
+
+            // 4. Initialize as INVOICE type
+            setType('INVOICE', document.querySelector('.type-btn.active'));
+
+            // Resize textareas
+            document.querySelectorAll('textarea').forEach(tx => autoResize(tx));
+        });
+
+        // Function A: When Invoice Date changes -> Update Due Date (+15) & Invoice No
+        function onInvoiceDateChange() {
+            const dateInput = document.getElementById('invoice-date');
+            if (dateInput.value) {
+                const selectedDate = new Date(dateInput.value);
+
+                // Update Due Date (+15 days)
+                const dueDate = new Date(selectedDate);
+                dueDate.setDate(selectedDate.getDate() + 15);
+                document.getElementById('due-date').valueAsDate = dueDate;
+
+                // Update Invoice Number based on Invoice Date
+                updateInvoiceNumber(dateInput.value);
+            }
+        }
+
+        // Function B: When Due Date changes -> Update Invoice Date (-15) & Invoice No
+        function onDueDateChange() {
+            const dueDateInput = document.getElementById('due-date');
+            if (dueDateInput.value) {
+                const selectedDueDate = new Date(dueDateInput.value);
+
+                // Update Invoice Date (-15 days)
+                const newInvoiceDate = new Date(selectedDueDate);
+                newInvoiceDate.setDate(selectedDueDate.getDate() - 15);
+                document.getElementById('invoice-date').valueAsDate = newInvoiceDate;
+
+                // Update Invoice Number based on the NEW Invoice Date
+                // We need to format the date string back to yyyy-mm-dd for the helper function
+                const yyyy = newInvoiceDate.getFullYear();
+                const mm = String(newInvoiceDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(newInvoiceDate.getDate()).padStart(2, '0');
+
+                updateInvoiceNumber(`${yyyy}-${mm}-${dd}`);
+            }
+        }
+
+        // Helper: Updates Invoice Number field based on date string (yyyy-mm-dd)
+        function updateInvoiceNumber(dateString) {
+            const yyyy = dateString.split('-')[0];
+            const mm = dateString.split('-')[1];
+            const dd = dateString.split('-')[2];
+            const yy = yyyy.slice(-2);
+            document.getElementById('invoice-no').value = `${dd}${mm}${yy}`;
+        }
+
+        function checkEmptyFields() {
+            const noteText = document.getElementById('default-note');
+            const noteGroup = document.getElementById('notes-group');
+            if (noteText.value.trim() === "") {
+                noteGroup.classList.add('print-hidden');
+            } else {
+                noteGroup.classList.remove('print-hidden');
+            }
+
+            const termsText = document.getElementById('terms-field');
+            const termsGroup = document.getElementById('terms-group');
+            if (termsText.value.trim() === "") {
+                termsGroup.classList.add('print-hidden');
+            } else {
+                termsGroup.classList.remove('print-hidden');
+            }
+
+            autoResize(noteText);
+            autoResize(termsText);
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        function setType(type, btn) {
+            document.getElementById('doc-title').value = type;
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            const dueDateRow = document.getElementById('due-date-row');
+            const totalLabel = document.getElementById('amount-due-label');
+
+            const noteField = document.getElementById('default-note');
+            const termsField = document.getElementById('terms-field');
+
+            if (type === 'RECEIPT') {
+                dueDateRow.style.display = 'none';
+                totalLabel.value = "Total Amount";
+                noteField.value = RECEIPT_NOTE;
+                termsField.value = RECEIPT_TERMS;
+            } else {
+                dueDateRow.style.display = 'flex';
+                totalLabel.value = "Amount Due";
+                noteField.value = INVOICE_NOTE;
+                termsField.value = INVOICE_TERMS;
+            }
+
+            checkEmptyFields();
+        }
+
+        function previewLogo(input) {
+            const preview = document.getElementById('logo-preview');
+            const label = document.getElementById('upload-label');
+            const removeBtn = document.getElementById('remove-logo-btn');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    removeBtn.style.display = 'flex';
+                    label.style.display = 'none';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function removeLogo() {
+            const preview = document.getElementById('logo-preview');
+            const label = document.getElementById('upload-label');
+            const removeBtn = document.getElementById('remove-logo-btn');
+            const input = document.getElementById('logo-input');
+
+            preview.src = "#";
+            preview.style.display = 'none';
+            removeBtn.style.display = 'none';
+            label.style.display = 'inline-block';
+            input.value = "";
+        }
+
+        function toggleTax() {
+            const isChecked = document.getElementById('tax-toggle').checked;
+            const taxWrapper = document.getElementById('tax-section-wrapper');
+            if (isChecked) {
+                taxWrapper.classList.remove('hidden');
+            } else {
+                taxWrapper.classList.add('hidden');
+            }
+            calculate();
+        }
+
+        function addRow() {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+            <td><textarea class="particulars-textarea" rows="1" placeholder="Service/Item Name" oninput="autoResize(this)"></textarea></td>
+            <td><input type="number" class="qty" value="1" oninput="calculate()"></td>
+            <td><input type="number" class="rate" value="0" oninput="calculate()"></td>
+            <td style="text-align: right; font-weight: 600;" class="item-total">₹0.00</td>
+        `;
+            document.getElementById('items-body').appendChild(row);
+        }
+
+        function formatIndianCurrency(num) {
+            let x = num.toFixed(2).split('.');
+            let x1 = x[0];
+            let x2 = x.length > 1 ? '.' + x[1] : '';
+            let lastThree = x1.substring(x1.length - 3);
+            let otherNumbers = x1.substring(0, x1.length - 3);
+            if (otherNumbers != '') lastThree = ',' + lastThree;
+            let res = otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree + x2;
+            return '₹ ' + res;
+        }
+
+        function calculate() {
+            let subtotal = 0;
+            document.querySelectorAll('#items-body tr').forEach(row => {
+                const q = parseFloat(row.querySelector('.qty').value) || 0;
+                const r = parseFloat(row.querySelector('.rate').value) || 0;
+                const total = q * r;
+                row.querySelector('.item-total').innerText = formatIndianCurrency(total);
+                subtotal += total;
+            });
+
+            const isTaxEnabled = document.getElementById('tax-toggle').checked;
+            let taxPercent = 0;
+            let taxAmount = 0;
+
+            if (isTaxEnabled) {
+                taxPercent = parseFloat(document.getElementById('tax').value) || 0;
+                taxAmount = (subtotal * taxPercent) / 100;
+            }
+
+            const grandTotal = subtotal + taxAmount;
+
+            document.getElementById('subtotal').innerText = formatIndianCurrency(subtotal);
+            document.getElementById('tax-amount-display').innerText = formatIndianCurrency(taxAmount);
+            document.getElementById('grand-total').innerText = formatIndianCurrency(grandTotal);
+        }
+
+        // --- VALIDATION LOGIC ---
+        function validateAndPrint() {
+            const sender = document.getElementById('sender-name').value.trim();
+            const client = document.getElementById('client-name').value.trim();
+            const invNo = document.getElementById('invoice-no').value.trim();
+            const invDate = document.getElementById('invoice-date').value;
+
+            if (!sender) {
+                alert("Please fill in the Sender Name (Who is this from?).");
+                document.getElementById('sender-name').focus();
+                return;
+            }
+            if (!client) {
+                alert("Please fill in the Client Name (Bill To).");
+                document.getElementById('client-name').focus();
+                return;
+            }
+            if (!invNo) {
+                alert("Please provide an Invoice Number.");
+                document.getElementById('invoice-no').focus();
+                return;
+            }
+            if (!invDate) {
+                alert("Please select a Date.");
+                document.getElementById('invoice-date').focus();
+                return;
+            }
+
+            window.print();
+        }
+    </script>
+</body>
+
+</html>
